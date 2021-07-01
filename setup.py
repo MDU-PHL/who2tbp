@@ -21,5 +21,7 @@ setup(
             [
                 'who2tbp=who2tbp.bin.main:main'
             ]
-    }
+    },
+    package_data={'who2tbp': ['data/genome.gff']},
+    include_package_data=True,
 )
