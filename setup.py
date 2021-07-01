@@ -15,6 +15,7 @@ setup(
         'openpyxl>=3.0.7',
         'setuptools>=49.6.0',
         'tqdm>=4.61.1',
+        'gffutils>=0.10.1'
     ],
     entry_points={
         "console_scripts":
