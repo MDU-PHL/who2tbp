@@ -38,7 +38,8 @@ def get_gene_strands() -> dict:
 def insertion_calc(ref_seq: str, alt_seq:str) -> str:
     """
     Given a reference sequence and an alternate sequence, identify
-    the inserted bases
+    the inserted bases and offset of the insertion relative to the
+    initial base in the ref string
     :param ref_seq: the sequence in the reference genome
     :param alt_seq: the sequence in the mutated genome
     :return: inserted sequences
@@ -47,11 +48,11 @@ def insertion_calc(ref_seq: str, alt_seq:str) -> str:
     diff = difflib.ndiff(ref_seq.upper(), alt_seq.upper())
     insert_data = [(pos, base.strip("+").strip()) for pos, base in enumerate(diff) if base.startswith('+')]
     insert_seq = ''.join([rec[1] for rec in insert_data])
-    start_pos = insert_data[0][0]
-    return start_pos, insert_seq
+    offset = insert_data[0][0] - 1
+    return offset, insert_seq
 
 
-def who2hgvs(var: str) -> tuple:
+def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
     """
     Given a variant in the format from the WHO, return the equivalent variant
     in the HGVS nomenclature
@@ -89,12 +90,22 @@ def who2hgvs(var: str) -> tuple:
         alt_nuc = match_prom.group(3)
         return gene, f"c.{pos}{ref_nuc.upper()}>{alt_nuc.upper()}"
 
+    # from here on end we MAY need strand information to make identify the
+    # correct location of the changes
+    strand = this_gene_strands.get(gene, None)
+    if not strand:
+        logger.warning(f"Did find strand information for {gene}. Assuming positive strand.")
+
     # deletions are given upstream from the indicated position
     # so, need to massage the output
     match_del = NUC_DELETION.match(var)
     if match_del:
-        start_pos = int(match_del.group(1)) + 1
-        end_pos = int(match_del.group(3)) + start_pos - 1
+        if strand == '+':
+            start_pos = int(match_del.group(1)) + 1
+            end_pos = int(match_del.group(1)) + int(match_del.group(3))
+        else:
+            start_pos = int(match_del.group(1)) - int(match_del.group(3))
+            end_pos = int(match_del.group(1)) - 1
         if end_pos - start_pos == 0:
             return gene, f"c.{start_pos}del"
         else:
@@ -108,9 +119,13 @@ def who2hgvs(var: str) -> tuple:
         indicator_pos = int(match_ins.group(1))
         ref_seq = match_ins.group(4)
         alt_seq = match_ins.group(5)
-        ins_pos, ins_seq = insertion_calc(ref_seq, alt_seq)
-        start_pos = indicator_pos + ins_pos
-        end_pos = start_pos + len(ins_seq)
+        offset, ins_seq = insertion_calc(ref_seq, alt_seq)
+        if strand == '+':
+            start_pos = indicator_pos + offset
+            end_pos = start_pos + 1
+        else:
+            end_pos = indicator_pos - offset
+            start_pos = end_pos - 1
         return gene, f"c.{start_pos}_{end_pos}ins{ins_seq}"
 
 
