@@ -5,6 +5,10 @@ Test conversion of var from WHO to style to HGVS
 import pytest
 from who2tbp.lib.gen_tbdb_csv import who2hgvs
 from who2tbp.lib.gen_tbdb_csv import insertion_calc
+from who2tbp.lib.gen_tbdb_csv import get_gene_strands
+
+
+gene_strands = get_gene_strands()
 
 
 @pytest.mark.parametrize("var,gene,hgvs", [
@@ -32,4 +36,9 @@ def test_insertion_calc(ref, alt, ins, start_pos):
     obs_start_pos, obs_ins = insertion_calc(ref, alt)
     assert obs_ins == ins
     assert obs_start_pos == start_pos
+
+
+def test_get_gene_strands():
+    genes = get_gene_strands()
+    assert len(genes) == 1951
 

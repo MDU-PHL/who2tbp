@@ -7,9 +7,15 @@ the position.
 
 import re
 import difflib
+import logging
+from importlib import resources
+import gffutils
 from Bio.Data.IUPACData import protein_letters_1to3
 from Bio.Data.IUPACData import protein_letters
 from typing import List
+
+
+logger = logging.getLogger()
 
 
 # defining regex patterns for each variant case
@@ -19,6 +25,14 @@ ncRNA_CHANGE = re.compile(f'([acgt])([0-9]{{1,4}})([acgt])')
 PROMOTER_CHANGE = re.compile(f"([acgt])(-[0-9]{{1,3}})([acgt])")
 NUC_DELETION = re.compile(f"([0-9]{{1,4}})_(del)_([0-9]{{1,2}})_([actg]+)_([actg]+)")
 NUC_INSERTION = re.compile(f"([0-9]{{1,4}})_(ins)_([0-9]{{1,3}})_([acgt]+)_([acgt]+)")
+
+
+def get_gene_strands() -> dict:
+    logger.info("Loading GFF file to get gene strands...")
+    with resources.path('who2tbp.lib.data', 'genome.gff') as gff_file:
+        db = gffutils.create_db(str(gff_file), ':memory:')
+        return {rec.attributes['Name'][0]: rec.strand for rec in db.all_features()
+                if rec.featuretype in ['gene', 'rRNA_gene'] and rec.attributes.get('Name', None) is not None}
 
 
 def insertion_calc(ref_seq: str, alt_seq:str) -> str:
@@ -108,3 +122,5 @@ def who2tbdw(data: List[dict]) -> dict:
     :param data: 
     :return: 
     """
+    gene_strands = get_gene_strands()
+
