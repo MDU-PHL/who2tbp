@@ -5,7 +5,8 @@ For insertions and deletions we need to account for the strand when calculating
 the position.
 
 """
-
+import _io
+import csv
 import re
 import difflib
 import logging
@@ -88,6 +89,7 @@ def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
     SNPs in non-coding RNAs. Example: A to G at position 1401 in rrs would be r.1401a>g
     SNPs in gene promoters. Example: A to G 7 bases 5' of the start codon in pncA c.-7A>G
 
+    :param this_gene_strands: a dictionary produced by get_gene_strands
     :param var: in the WHO format
     :return: gene ID, and the var in the HGVS format
     """
@@ -134,7 +136,6 @@ def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
         end_pos = start_pos + 1
         return gene, f"c.-{start_pos}_-{end_pos}ins{ins_seq}"
 
-
     # from here on end we MAY need strand information to make identify the
     # correct location of the changes
     strand = this_gene_strands.get(gene, None)
@@ -174,13 +175,41 @@ def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
         return gene, f"c.{start_pos}_{end_pos}ins{ins_seq}"
 
 
-def who2tbdw(data: List[dict]) -> dict:
+def who2tbd(data: List[dict], outfile: _io.TextIOWrapper) -> List[dict]:
     """
     Given the output from WHO extraction, translate the variant code to 
     something the HGVS nomenclature
+
+    Each element of the list will be a dictionary with the following keys:
+        Gene
+        Mutation
+        Drug
+        Literature
 
     :param data: 
     :return: 
     """
     gene_strands = get_gene_strands()
+    output = []
+    logger.info("Outputting data for TBprofiler...")
+    outwriter = csv.DictWriter(outfile,
+                               fieldnames=['Gene', 'Mutation', 'Drug', 'Literature'])
+    outwriter.writeheader()
+    for record in data:
+        gene, var = who2hgvs(record['var'], gene_strands)
+        tbp_rec = {
+            'Gene': gene,
+            'Mutation': var,
+            'Drug': record['drug'],
+            'Literature': 'WHO List'
+        }
+        outwriter.writerow(tbp_rec)
+        output += [{
+            'Gene': gene,
+            'Mutation': var,
+            'Drug': record['drug'],
+            'Literature': 'WHO List'
+        }]
+    return output
+
 
