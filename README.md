@@ -23,6 +23,21 @@ Get help:
 who2tbp -h 
 ```
 
+## Complete usage
+
+```bash
+usage: Convert WHO Excel sheet with MTB mutations to TBProfiler database format [-h] [-f {assoc_resistance,no_assoc,assoc_resistance_interim,no_assoc_interim,combo,uncert_signif,all}] [-o OUTFILE] INFILE
+
+positional arguments:
+  INFILE                The WHO Excel sheet
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f {assoc_resistance,no_assoc,assoc_resistance_interim,no_assoc_interim,combo,uncert_signif,all}, --filter {assoc_resistance,no_assoc,assoc_resistance_interim,no_assoc_interim,combo,uncert_signif,all}
+                        Limit to single category (default: assoc_resistance)
+  -o OUTFILE, --outfile OUTFILE
+```
+
 
 ## Develop
 
