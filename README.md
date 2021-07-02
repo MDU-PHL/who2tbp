@@ -10,12 +10,12 @@ pip install git+https://github.com/MDU-PHL/who2tbp.git
 
 Get all the high confidence variants associated with resistance:
 ```bash
-who2tbp WHO-UCN-GTB-PCI-2021.7-eng.xlsx
+who2tbp WHO-UCN-GTB-PCI-2021.7-eng.xlsx > tbdb_who.py
 ```
 
 Get all the variants only interim associated with resistance:
 ```bash
-who2tbp --filter assoc_resistance_interim WHO-UCN-GTB-PCI-2021.7-eng.xlsx
+who2tbp --filter assoc_resistance_interim WHO-UCN-GTB-PCI-2021.7-eng.xlsx > tbdb_who_assoc_interim.py
 ```
 
 Get help:
