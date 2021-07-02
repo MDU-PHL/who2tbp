@@ -4,8 +4,6 @@ Create a TBProfiler CSV file ready for use with parse_db.py
 For insertions and deletions we need to account for the strand when calculating
 the position.
 
-TODO:
-    - Support ins in promoter regions
 """
 
 import re
@@ -29,9 +27,16 @@ PROMOTER_CHANGE = re.compile(f"([acgt])(-[0-9]{{1,3}})([acgt])")
 NUC_DELETION = re.compile(f"([0-9]{{1,4}})_(del)_([0-9]{{1,2}})_([actg]+)_([actg]+)")
 NUC_INSERTION = re.compile(f"([0-9]{{1,4}})_(ins)_([0-9]{{1,3}})_([acgt]+)_([acgt]+)")
 PROMOTER_DEL = re.compile(f"-([0-9]{{1,3}})_(del)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
+PROMOTER_INS = re.compile(f"-([0-9]{{1,3}})_(ins)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
 
 
 def get_gene_strands() -> dict:
+    """
+    Read the reference genome GFF file and return a dictionary with
+    gene IDs as keys and the strand as the values
+    Returns both CDS regions and rRNAs
+    :return: dictionary
+    """
     logger.info("Loading GFF file to get gene strands...")
     with resources.path('who2tbp.lib.data', 'genome.gff') as gff_file:
         db = gffutils.create_db(str(gff_file), ':memory:')
@@ -118,6 +123,17 @@ def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
             return gene, f"c.-{start_pos}del"
         else:
             return gene, f"c.-{start_pos}_-{end_pos}del"
+
+    match_prom_ins = PROMOTER_INS.match(var)
+    if match_prom_ins:
+        indicator_pos = int(match_prom_ins.group(1))
+        ref_seq = match_prom_ins.group(4)
+        alt_seq = match_prom_ins.group(5)
+        offset, ins_seq = insertion_calc(ref_seq, alt_seq)
+        start_pos = indicator_pos + offset
+        end_pos = start_pos + 1
+        return gene, f"c.-{start_pos}_-{end_pos}ins{ins_seq}"
+
 
     # from here on end we MAY need strand information to make identify the
     # correct location of the changes
