@@ -1,10 +1,10 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from who2tbp import __version__ as VERSION
 
 setup(
     name='who2tbp',
     version=VERSION,
-    packages=['who2tbp'],
+    packages=find_packages(),
     url='github.com/MDU-PHL/who2tbp',
     license='GPLv3',
     author='Anders Goncalves da Silva',
