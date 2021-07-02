@@ -8,6 +8,7 @@ import os
 import sys
 
 from who2tbp.lib.parse_excel_data import parse_file
+from who2tbp.lib.gen_tbdb_csv import who2tbd
 
 tool_name = os.path.basename(sys.argv[0])
 
@@ -28,13 +29,16 @@ def arg_parser() -> argparse.Namespace:
                                                                                   'uncert_signif',
                                                                                   'all'],
                       default="assoc_resistance")
+    args.add_argument("-o", "--outfile", default=sys.stdout, type=argparse.FileType('w'))
     return args.parse_args()
 
 
-def main() -> None:
+def main() -> int:
     args = arg_parser()
     logger.info(f"Welcome to {tool_name}")
     data = parse_file(args.INFILE, this_filter=args.filter)
+    _ = who2tbd(data, args.outfile)
+    return 0
 
 
 if __name__ == "__main__":
