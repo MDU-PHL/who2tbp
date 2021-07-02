@@ -51,7 +51,7 @@ gh fork repo MDU-PHL/who2tbp
 
 ```bash
 cd who2tbp
-conda create -n who2tbp -f requirements.txt
+conda create -n who2tbp --file requirements.txt -c conda-forge -c bioconda
 ```
 
 3. Make changes
