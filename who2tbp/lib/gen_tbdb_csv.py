@@ -3,6 +3,9 @@ Create a TBProfiler CSV file ready for use with parse_db.py
 
 For insertions and deletions we need to account for the strand when calculating
 the position.
+
+TODO:
+    - Support ins in promoter regions
 """
 
 import re
@@ -25,6 +28,7 @@ ncRNA_CHANGE = re.compile(f'([acgt])([0-9]{{1,4}})([acgt])')
 PROMOTER_CHANGE = re.compile(f"([acgt])(-[0-9]{{1,3}})([acgt])")
 NUC_DELETION = re.compile(f"([0-9]{{1,4}})_(del)_([0-9]{{1,2}})_([actg]+)_([actg]+)")
 NUC_INSERTION = re.compile(f"([0-9]{{1,4}})_(ins)_([0-9]{{1,3}})_([acgt]+)_([acgt]+)")
+PROMOTER_DEL = re.compile(f"-([0-9]{{1,3}})_(del)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
 
 
 def get_gene_strands() -> dict:
@@ -89,6 +93,15 @@ def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
         pos = match_prom.group(2)
         alt_nuc = match_prom.group(3)
         return gene, f"c.{pos}{ref_nuc.upper()}>{alt_nuc.upper()}"
+
+    match_prom_del = PROMOTER_DEL.match(var)
+    if match_prom_del:
+        start_pos = int(match_prom_del.group(1)) + 1
+        end_pos = int(match_prom_del.group(3)) + start_pos - 1
+        if end_pos - start_pos == 0:
+            return gene, f"c.-{start_pos}del"
+        else:
+            return gene, f"c.-{start_pos}_-{end_pos}del"
 
     # from here on end we MAY need strand information to make identify the
     # correct location of the changes

@@ -21,7 +21,9 @@ gene_strands = get_gene_strands()
     ("pncA_390_del_4_cacat_c", "pncA", "c.386_389del"),  # negative strand
     ("rpoB_1296_ins_3_a_attc", "rpoB", "c.1296_1297insTTC"),  # positive strand
     ("pncA_392_ins_1_a_ac", "pncA", "c.391_392insC"),  # negative strand with offset
-    ("pncA_533_ins_1_gcggtgcgcatctcctccagcgcggcgacggtgg_gcggtgcgcatctcctcccagcgcggcgacggtgg", "pncA", "c.515_516insC")  # negative strand with offset
+    ("pncA_533_ins_1_gcggtgcgcatctcctccagcgcggcgacggtgg_gcggtgcgcatctcctcccagcgcggcgacggtgg", "pncA", "c.515_516insC"),  # negative strand with offset
+    ("pncA_-4_del_1_tc_t", "pncA", "c.-5del"), # promoter deletion
+    ("whiB6_-94_del_3_gagt_g", "whiB6", "c.-95_-97del")
 ])
 def test_who2hgvs(var, gene, hgvs):
     obs_gene, obs_hgvs = who2hgvs(var, gene_strands)
