@@ -39,14 +39,14 @@ def get_gene_strands() -> dict:
                 if rec.featuretype in ['gene', 'rRNA_gene'] and rec.attributes.get('Name', None) is not None}
 
 
-def insertion_calc(ref_seq: str, alt_seq:str) -> str:
+def insertion_calc(ref_seq: str, alt_seq:str) -> tuple:
     """
     Given a reference sequence and an alternate sequence, identify
     the inserted bases and offset of the insertion relative to the
     initial base in the ref string
     :param ref_seq: the sequence in the reference genome
     :param alt_seq: the sequence in the mutated genome
-    :return: inserted sequences
+    :return: offset_pos, inserted sequences
     """
 
     diff = difflib.ndiff(ref_seq.upper(), alt_seq.upper())
@@ -54,6 +54,21 @@ def insertion_calc(ref_seq: str, alt_seq:str) -> str:
     insert_seq = ''.join([rec[1] for rec in insert_data])
     offset = insert_data[0][0] - 1
     return offset, insert_seq
+
+
+def promoter_offset(ref_seq: str, alt_seq: str) -> tuple:
+    """
+    Given a reference sequence to a promoter and an alternate sequence with a deletion,
+    identify the position of the deletion in the reference sequence
+    :param ref_seq: the reference sequence
+    :param alt_seq: the alternate sequence
+    :return: offset, del_len
+    """
+    diff = difflib.ndiff(ref_seq, alt_seq)
+    del_data = [(pos, base.strip("-".strip())) for pos, base in enumerate(diff) if base.startswith("-")]
+    offset = del_data[0][0] - 1
+    len_del = len(del_data)
+    return offset, len_del
 
 
 def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
@@ -96,7 +111,8 @@ def who2hgvs(var: str, this_gene_strands: dict) -> tuple:
 
     match_prom_del = PROMOTER_DEL.match(var)
     if match_prom_del:
-        start_pos = int(match_prom_del.group(1)) + 1
+        offset, del_len = promoter_offset(match_prom_del.group(4), match_prom_del.group(5))
+        start_pos = int(match_prom_del.group(1)) + offset + 1
         end_pos = int(match_prom_del.group(3)) + start_pos - 1
         if end_pos - start_pos == 0:
             return gene, f"c.-{start_pos}del"
