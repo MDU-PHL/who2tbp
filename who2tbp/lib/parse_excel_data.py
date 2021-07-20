@@ -45,7 +45,7 @@ def parse_file(filehandle: _io.BytesIO, this_filter: str = 'assoc_resistance') -
     genome_pos_ix = header.index("Genome position")
     conf_class_ix = header.index("FINAL CONFIDENCE GRADING")
     logger.info("Processing the rows...")
-    logger.info("Progres....")
+    logger.info("Progress....")
     data = [{'drug': row[drug_ix],
              'var': row[var_ix],
              'genome_pos': row[genome_pos_ix],
