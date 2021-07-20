@@ -31,7 +31,7 @@ def parse_file(filehandle: _io.BytesIO, this_filter: str = 'assoc_resistance') -
     """
     logger.info("Processing Excel file...")
 
-    if filter == 'all':
+    if this_filter == 'all':
         conf_class = list(CONF_CLASSES.values())
     else:
         conf_class = [CONF_CLASSES[this_filter]]
