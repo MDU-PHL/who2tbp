@@ -24,11 +24,11 @@ logger = logging.getLogger()
 # note the WHO is using ! to symbolise stop codon rather than *
 AA_CHANGE = re.compile(f'([{protein_letters}])([0-9]{{1,4}})([{protein_letters}!])')
 ncRNA_CHANGE = re.compile(f'([acgt])([0-9]{{1,4}})([acgt])')
-PROMOTER_CHANGE = re.compile(f"([acgt])(-[0-9]{{1,3}})([acgt])")
-NUC_DELETION = re.compile(f"([0-9]{{1,4}})_(del)_([0-9]{{1,2}})_([actg]+)_([actg]+)")
-NUC_INSERTION = re.compile(f"([0-9]{{1,4}})_(ins)_([0-9]{{1,3}})_([acgt]+)_([acgt]+)")
-PROMOTER_DEL = re.compile(f"-([0-9]{{1,3}})_(del)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
-PROMOTER_INS = re.compile(f"-([0-9]{{1,3}})_(ins)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
+PROMOTER_CHANGE = re.compile(f"([acgt])(-[0-9]{{1,4}})([acgt])")
+NUC_DELETION = re.compile(f"([0-9]{{1,4}})_(del)_([0-9]{{1,4}})_([actg]+)_([actg]+)")
+NUC_INSERTION = re.compile(f"([0-9]{{1,4}})_(ins)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
+PROMOTER_DEL = re.compile(f"-([0-9]{{1,4}})_(del)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
+PROMOTER_INS = re.compile(f"-([0-9]{{1,4}})_(ins)_([0-9]{{1,4}})_([acgt]+)_([acgt]+)")
 
 
 def get_gene_strands() -> dict:
